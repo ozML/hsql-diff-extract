@@ -26,7 +26,10 @@ Usage: ARG=VALUE
 **Flags:**
 
 -interactive (interactive mode):  
-*Enabling interactive ignores some arguments (see`*`)*
+*Enabling interactive ignores some arguments (see`*`)*  
+
+-lazy (lazy mode):  
+*Only a part of the rows are cached at a time, but speed is decreased.*
 
 
 `*` Only mandatory in noninteractive mode
