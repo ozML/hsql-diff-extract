@@ -40,7 +40,7 @@ public class TableParser {
 	private static final int UNIQUE_CONSTRAINT_GROUP_COLUMNS = 3;
 
 	/**
-	 * Builds a list of tables from the definitions contained in the
+	 * Builds a map of tables from the definitions contained in the
 	 * specified sql file.
 	 * @param path path to sql file
 	 * @return

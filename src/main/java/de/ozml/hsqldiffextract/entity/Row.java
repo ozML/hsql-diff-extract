@@ -34,7 +34,7 @@ public class Row {
 		this.value = value;
 	}
 
-	public String[] getPrimaryKeyValue(){
+	public String[] getPrimaryKey(){
 		int[] pkIndices = table.getPrimaryKeyIndices();
 		String[] pkValue = new String[pkIndices.length];
 		for(int i = 0; i < pkIndices.length; i++){

@@ -6,12 +6,15 @@ import java.io.IOException;
 import java.util.Map;
 
 import de.ozml.hsqldiffextract.entity.Row;
+import de.ozml.hsqldiffextract.util.RowSource;
 import de.ozml.hsqldiffextract.util.RowUtil;
 
 /**
  * The class offers methods to determine changes between table row state.
  */
 public class DiffProcessor {
+
+	private static final int PART_SIZE = 5000;
 
 	private String tableName;
 	private String outputDir;
@@ -22,10 +25,18 @@ public class DiffProcessor {
 		this.outputDir = outputDir;
 	}
 
+	/**
+	 * Return the name of the contained table.
+	 * @return
+	 */
 	public String getTableName() {
 		return tableName;
 	}
 
+	/**
+	 * Return the output directory path.
+	 * @return
+	 */
 	public String getOutputDir() {
 		return outputDir;
 	}
@@ -37,7 +48,7 @@ public class DiffProcessor {
 	 * @param originalRows
 	 * @param changedRows
 	 */
-	public void process(Map<String, Row> originalRows, Map<String, Row> changedRows){
+	public void process(RowSource originalRows, RowSource changedRows){
 		try{
 			// Check for new created entries
 			checkCreated(originalRows, changedRows);
@@ -60,12 +71,14 @@ public class DiffProcessor {
 	 * @param changedRows
 	 * @throws IOException
 	 */
-	private void checkCreated(Map<String, Row> originalRows, Map<String, Row> changedRows)
+	private void checkCreated(RowSource originalRows, RowSource changedRows)
 			throws IOException {
-		for (Row cRow : changedRows.values()) {
-			if(!originalRows.containsKey(RowUtil.generateIndexKey(cRow.getPrimaryKeyValue()))){
-				openWriter().write(buildInsertQueryString(cRow));
-				openWriter().newLine();
+		for(int i = 0; i < changedRows.count(); i += PART_SIZE){
+			for (Row cRow : changedRows.getPart(i, PART_SIZE)) {
+				if(!originalRows.containsRow(RowUtil.genIndexKey(cRow.getPrimaryKey()))){
+					openWriter().write(buildInsertQueryString(cRow));
+					openWriter().newLine();
+				}
 			}
 		}
 	}
@@ -76,14 +89,23 @@ public class DiffProcessor {
 	 * @param changedRows
 	 * @throws IOException
 	 */
-	private void checkUpdated(Map<String, Row> originalRows, Map<String, Row> changedRows)
+	private void checkUpdated(RowSource originalRows, RowSource changedRows)
 			throws IOException {
-		for (Row oRow : originalRows.values()) {
-			Row cRow = changedRows.get(RowUtil.generateIndexKey(oRow.getPrimaryKeyValue()));
-
-			if(cRow != null && !oRow.equals(cRow)){
-				openWriter().write(buildUpdateQueryString(oRow, cRow));
-				openWriter().newLine();
+		for(int i = 0; i < originalRows.count(); i += PART_SIZE){
+			Map<String, Row> oPartMap = originalRows.getPartMap(i, PART_SIZE);
+			Map<String, Row> cPartMap = changedRows.getRowsMap(oPartMap.keySet());
+			
+			for (Row oRow : oPartMap.values()) {
+				String key = RowUtil.genIndexKey(oRow.getPrimaryKey());
+				if(!cPartMap.containsKey(key)){
+					continue;
+				}
+	
+				Row cRow = cPartMap.get(key);
+				if(cRow != null && !oRow.equals(cRow)){
+					openWriter().write(buildUpdateQueryString(oRow, cRow));
+					openWriter().newLine();
+				}
 			}
 		}
 	}
@@ -94,14 +116,14 @@ public class DiffProcessor {
 	 * @param changedRows
 	 * @throws IOException
 	 */
-	private void checkDeleted(Map<String, Row> originalRows, Map<String, Row> changedRows)
+	private void checkDeleted(RowSource originalRows, RowSource changedRows)
 			throws IOException {
-		for (Row oRow : originalRows.values()) {
-			Row cRow = changedRows.get(RowUtil.generateIndexKey(oRow.getPrimaryKeyValue()));
-
-			if(cRow == null){
-				openWriter().write(buildDeleteQueryString(oRow));
-				openWriter().newLine();
+		for(int i = 0; i < originalRows.count(); i += PART_SIZE){
+			for (Row oRow : originalRows.getPart(i, PART_SIZE)) {
+				if(!changedRows.containsRow(RowUtil.genIndexKey(oRow.getPrimaryKey()))){
+					openWriter().write(buildDeleteQueryString(oRow));
+					openWriter().newLine();
+				}
 			}
 		}
 	}
@@ -188,9 +210,7 @@ public class DiffProcessor {
 			if(writer != null){ 
 				writer.close();
 			}
-		} catch(Exception e){
-
-		}
+		} catch(Exception e){}
 	}
 
 }

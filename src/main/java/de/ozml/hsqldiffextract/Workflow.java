@@ -4,12 +4,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
-import de.ozml.hsqldiffextract.entity.Row;
 import de.ozml.hsqldiffextract.entity.Table;
 import de.ozml.hsqldiffextract.parser.RowParser;
 import de.ozml.hsqldiffextract.parser.TableParser;
+import de.ozml.hsqldiffextract.util.EagerRowSource;
+import de.ozml.hsqldiffextract.util.LazyRowRource;
+import de.ozml.hsqldiffextract.util.RowSource;
 
 /**
  * Represents the inner workflow of the program.
@@ -21,11 +22,13 @@ public class Workflow {
 	private String originalFile;
 	private String changedFile;
 	private String outputDir;
+	private boolean isLazyMode;
 
-	public Workflow(String originalFile, String changedFile, String outputDir) {
+	public Workflow(String originalFile, String changedFile, String outputDir, boolean isLazyMode) {
 		this.originalFile = originalFile;
 		this.changedFile = changedFile;
 		this.outputDir = outputDir;
+		this.isLazyMode = isLazyMode;
 	}
 	
 	public void start(){
@@ -54,13 +57,13 @@ public class Workflow {
 					System.out.println("\nProcessing table " + oTable.getName());
 
 					// Read rows
-					Map<String, Row> oRows = RowParser.readRowsFromTable(oTable, originalFile);
-					Map<String, Row> cRows = RowParser.readRowsFromTable(cTable, changedFile);
-					System.out.println("Rows: original=" + oRows.size() +", changed=" + cRows.size());
+					RowSource oTableSource = buildRowSource(oTable, originalFile);
+					RowSource cTableSource = buildRowSource(cTable, changedFile);
+					System.out.println("Rows: original=" + oTableSource.count() +", changed=" + cTableSource.count());
 					
-					if(!oRows.isEmpty() && !cRows.isEmpty()){
+					if(oTableSource.count() > 0 && cTableSource.count() > 0){
 						DiffProcessor diffProcessor = new DiffProcessor(oTable.getName(), outputDir);
-						diffProcessor.process(oRows, cRows);
+						diffProcessor.process(oTableSource, cTableSource);
 						System.out.println("Done");
 					} else {
 						System.out.println("Skipped");
@@ -71,6 +74,14 @@ public class Workflow {
 
 		// End
 		System.out.println("\nWorkflow completed");
+	}
+
+	private RowSource buildRowSource(Table table, String filePath){
+		if(isLazyMode){
+			return new LazyRowRource(table, filePath, RowParser.readRowLinesFromTable(table, filePath));
+		} else {
+			return new EagerRowSource(table, RowParser.readRowsFromTable(table, filePath));
+		}
 	}
 
 	private void printTables(String headLine, List<Table> tables, boolean append){

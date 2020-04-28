@@ -26,7 +26,8 @@ public class Starter {
 				"-oDir (output directory)*: Path to output directory\n" +
 				"\n" +
 				"Flags:\nUsage -> -FLAG\n\n" +
-				"-interactive (interactive mode): Enabling interactive mode does ignore the other arguments" +
+				"-interactive (interactive mode): Enabling interactive mode does ignore the other arguments.\n" +
+				"-lazy (lazy mode): Only a part of the rows are cached at a time, but speed is decreased.\n" +
 				"\n\n* Mandatory in noninteractive mode" +
 				"\n"
 			);
@@ -67,7 +68,7 @@ public class Starter {
 			}
 		}
 
-		Workflow workflow = new Workflow(originalFile, changedFile, outputDir);
+		Workflow workflow = new Workflow(originalFile, changedFile, outputDir, argumentBag.isLazyMode());
 		workflow.start();
 	}
 

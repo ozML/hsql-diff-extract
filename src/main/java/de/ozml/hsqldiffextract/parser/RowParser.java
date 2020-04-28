@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,38 +22,82 @@ import de.ozml.hsqldiffextract.util.RowUtil;
 public class RowParser {
 
 	/**
-	 * Builds a list of rows for the given table from the data definitions 
-	 * contained in the specified sql file. 
+	 * Builds a map of rows for the given table from the data definitions 
+	 * contained in the specified sql file. The entry keys correspond to the rows
+	 * primary key value.
 	 * @param table target table
 	 * @param path path to sql file
 	 * @return
 	 */
 	public static Map<String, Row> readRowsFromTable(Table table, String path){
 		Map<String, Row> rows = new HashMap<>();
+		readRowPerLine(table, path, (row, lineNumber) -> rows.put(RowUtil.genIndexKey(row.getPrimaryKey()), row));
 
+		return rows;
+	}
+
+	/**
+	 * Builds a map from the table rows contained in the specified sql file.
+	 * Each entries key corresponds to the rows primary key and the value holds the line number in the
+	 * sql data file. This map can be used for lazy loading the row data.
+	 * @param table target table
+	 * @param path path to sql file
+	 * @return
+	 */
+	public static Map<String, Integer> readRowLinesFromTable(Table table, String path){
+		Map<String, Integer> rowLines = new HashMap<>();
+		readRowPerLine(table, path, (row, lineNumber) -> rowLines.put(RowUtil.genIndexKey(row.getPrimaryKey()), lineNumber));
+
+		return rowLines;
+	}
+
+	/**
+	 * Reads the sql script file per line and builds a row for the spefified table for any corresponding line.
+	 * Each row found is passed to the handler.
+	 * @param table target table
+	 * @param path path to sql file
+	 * @param handler
+	 */
+	private static void readRowPerLine(Table table, String path, BiConsumer<Row, Integer> handler){
 		String pattern = buildMatchPattern(table);
 		BufferedReader reader = null;
 		try{
 			reader = new BufferedReader(new FileReader(path));
 			String line = reader.readLine();
+			int lineNumber = 0;
 
 			// Build row list
 			while(line != null){
 				if(line.matches(pattern)){
 					Row row = extractRow(table, line, pattern);
 					if(row != null){
-						rows.put(RowUtil.generateIndexKey(row.getPrimaryKeyValue()), row);
+						handler.accept(row, lineNumber);
 					}
 				}
 				line = reader.readLine();
+				lineNumber++;
 			}
 		} catch(IOException e){
 			e.printStackTrace();
 		} finally{
 			try{if(reader != null) reader.close();} catch(Exception e){}
 		}
+	}
 
-		return rows;
+	/**
+	 * Builds a single row from the data definition string.
+	 * @param table
+	 * @param def
+	 * @return
+	 */
+	public static Row extractRow(Table table, String def){
+		Row row = null;
+		try {
+			String rowPattern = buildMatchPattern(table);
+		return extractRow(table, def, rowPattern);
+		} catch (Exception e) {}
+
+		return row;
 	}
 
 	/**

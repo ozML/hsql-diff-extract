@@ -20,11 +20,13 @@ public class ArgumentBag {
 	private static final String ARG_C_FILE = "cFile";
 	private static final String ARG_O_DIR = "oDir";
 	private static final String ARG_INTERACTIVE = "interactive";
+	private static final String ARG_LAZY = "lazy";
 
 	private static final String ARG_PATTERN = ARG_PREFIX +  "(\\w+)(" + ARGS_SUFFIX + "(.*))?"; 
 
 	private Map<String, String> arguments;
 	private boolean isInteractive;
+	private boolean isLazyMode;
 
 	/**
 	 * Builds a {@link ArgumentBag} instance and passes the parsed argument values
@@ -35,6 +37,7 @@ public class ArgumentBag {
 	public static ArgumentBag build(String[] args){
 		Map<String, String> result = new HashMap<>();
 		boolean isInteractive = false;
+		boolean isLazyMode = false;
 
 		Pattern pattern = Pattern.compile(ARG_PATTERN);
 		for (String arg : args) {
@@ -50,13 +53,15 @@ public class ArgumentBag {
 			String argKey = matcher.group(1);
 			if(argKey.equals(ARG_INTERACTIVE)) {
 				isInteractive = true;
+			} else if(argKey.equals(ARG_LAZY)){
+				isLazyMode = true;
 			} else {
 				String argValue = matcher.group(3);result.put(argKey, argValue);
 				result.put(argKey, argValue);
 			}
 		}
 
-		return new ArgumentBag(result, isInteractive);
+		return new ArgumentBag(result, isInteractive, isLazyMode);
 	}
 
 	/**
@@ -68,13 +73,18 @@ public class ArgumentBag {
 		return ARG_PREFIX + value;
 	}
 
-	private ArgumentBag(Map<String, String> arguments, boolean isInteractive){
+	private ArgumentBag(Map<String, String> arguments, boolean isInteractive, boolean isLazyMode){
 		this.arguments = arguments;
 		this.isInteractive = isInteractive;
+		this.isLazyMode = isLazyMode;
 	}
 
 	public boolean isInteractive() {
 		return isInteractive;
+	}
+
+	public boolean isLazyMode(){
+		return isLazyMode;
 	}
 
 	/**
