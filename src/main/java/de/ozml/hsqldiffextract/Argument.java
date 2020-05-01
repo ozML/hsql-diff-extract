@@ -16,16 +16,16 @@ public enum Argument {
 
 	private String definition;
 	private boolean isFlag;
-	private boolean isInteractive;
+	private boolean isRequired;
 
 	/**
-	 * Returns all interacive arguments.
+	 * Returns all required arguments.
 	 * @return
 	 */
-	public static List<Argument> getInteractiveList() {
+	public static List<Argument> getRequiredList() {
 		List<Argument> result = new ArrayList<>();
 		for (Argument argument : Argument.values()) {
-			if(argument.isInteractive()){
+			if(argument.isRequired()){
 				result.add(argument);
 			}
 		}
@@ -48,14 +48,14 @@ public enum Argument {
 		return null;
 	}
 
-	private Argument(String definition, boolean isFlag, boolean isInteractive) {
+	private Argument(String definition, boolean isFlag, boolean isRequired) {
 		this.definition = definition;
 		this.isFlag = isFlag;
-		this.isInteractive = isInteractive;
+		this.isRequired = isRequired;
 	}
 
-	private Argument(String definition, boolean isInteractive) {
-		this(definition, false, isInteractive);
+	private Argument(String definition, boolean isRequired) {
+		this(definition, false, isRequired);
 	}
 
 	private Argument(String definition){
@@ -82,8 +82,8 @@ public enum Argument {
 	 * Checks whether the argument is interactive.
 	 * @return
 	 */
-	public boolean isInteractive() {
-		return isInteractive;
+	public boolean isRequired() {
+		return isRequired;
 	}
 
 	@Override

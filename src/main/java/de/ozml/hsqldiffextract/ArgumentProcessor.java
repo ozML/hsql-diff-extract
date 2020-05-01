@@ -53,7 +53,7 @@ public class ArgumentProcessor {
 		// If interactive mode is requested the mandatory arguments must not be
 		// present beforehand, hence are removed from map.
 		if(result.containsKey(Argument.Interactive.getDefinition())){
-			Argument.getInteractiveList().forEach(arg -> result.remove(arg.getDefinition()));
+			Argument.getRequiredList().forEach(arg -> result.remove(arg.getDefinition()));
 		}
 
 		return new ArgumentProcessor(result);
@@ -94,6 +94,16 @@ public class ArgumentProcessor {
 	 */
 	public int size(){
 		return arguments.size();
+	}
+
+	/**
+	 * Checks whether the argument requirements are met. The conditions are that non
+	 * interactive mode is enabled and all mandatory arguments are present.
+	 * @return
+	 */
+	public boolean claimsMet() {
+		Predicate<Argument> p = arg -> arguments.containsKey(arg.getDefinition());
+		return isInteractive() || Argument.getRequiredList().stream().allMatch(p);
 	}
 
 	/**

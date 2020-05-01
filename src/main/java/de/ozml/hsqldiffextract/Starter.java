@@ -13,7 +13,7 @@ public class Starter {
 		ArgumentProcessor argProcessor = ArgumentProcessor.build(args);
 		
 		// Print help if necessary
-		if(!argProcessor.isInteractive() && argProcessor.size() < 3){
+		if(!argProcessor.claimsMet()) {
 			System.out.println(
 				"HSQLDiffExtract is a help utility to determine changes between two HSQLDB database script files." +
 				"\nPass in the file with the original state and the file with the changes." +
