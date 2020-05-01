@@ -10,10 +10,10 @@ public class Starter {
 	public static void main(String[] args){
 
 		// Collect arguments
-		ArgumentBag argumentBag = ArgumentBag.build(args);
+		ArgumentProcessor argProcessor = ArgumentProcessor.build(args);
 		
 		// Print help if necessary
-		if(!argumentBag.isInteractive() && argumentBag.size() < 3){
+		if(!argProcessor.isInteractive() && argProcessor.size() < 3){
 			System.out.println(
 				"HSQLDiffExtract is a help utility to determine changes between two HSQLDB database script files." +
 				"\nPass in the file with the original state and the file with the changes." +
@@ -37,8 +37,8 @@ public class Starter {
 
 		// Original file
 		System.out.println("\nReading original file path");
-		String originalFile = argumentBag.getOriginalFile();
-		if(!argumentBag.isInteractive()){
+		String originalFile = argProcessor.getOriginalFile();
+		if(!argProcessor.isInteractive()){
 			System.out.println(originalFile);
 			if(!new File(originalFile).exists()){
 				System.out.println("File does not exist");
@@ -48,8 +48,8 @@ public class Starter {
 
 		// Changed file
 		System.out.println("\nReading changed file path");
-		String changedFile = argumentBag.getChangedFile();
-		if(!argumentBag.isInteractive()){
+		String changedFile = argProcessor.getChangedFile();
+		if(!argProcessor.isInteractive()){
 			System.out.println(changedFile);
 			if(!new File(changedFile).exists()){
 				System.out.println("File does not exist");
@@ -59,8 +59,8 @@ public class Starter {
 
 		// Output directory
 		System.out.println("\nReading path to ouput directory");
-		String outputDir = argumentBag.getOutputDirectory();
-		if(!argumentBag.isInteractive()){
+		String outputDir = argProcessor.getOutputDirectory();
+		if(!argProcessor.isInteractive()){
 			System.out.println(outputDir);
 			if(!new File(outputDir).exists()){
 				System.out.println("Directory does not exist");
@@ -68,7 +68,7 @@ public class Starter {
 			}
 		}
 
-		Workflow workflow = new Workflow(originalFile, changedFile, outputDir, argumentBag.isLazyMode());
+		Workflow workflow = new Workflow(originalFile, changedFile, outputDir, argProcessor.isLazyMode());
 		workflow.start();
 	}
 
