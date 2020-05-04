@@ -2,6 +2,9 @@ package de.ozml.hsqldiffextract;
 
 import java.io.File;
 
+import de.ozml.hsqldiffextract.arg.ArgumentBag;
+import de.ozml.hsqldiffextract.arg.ArgumentProcessor;
+
 /**
  * Entry point of the program
  */
@@ -10,7 +13,7 @@ public class Starter {
 	public static void main(String[] args){
 
 		// Collect arguments
-		ArgumentProcessor argProcessor = ArgumentProcessor.build(args);
+		ArgumentBag argProcessor = ArgumentProcessor.build(args);
 		
 		// Print help if necessary
 		if(!argProcessor.claimsMet()) {

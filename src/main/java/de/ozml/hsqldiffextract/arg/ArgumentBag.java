@@ -1,74 +1,19 @@
-package de.ozml.hsqldiffextract;
+package de.ozml.hsqldiffextract.arg;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The class manages the arguments which are passed through the command line
  * and offers mnethods to access the values.
  */
-public class ArgumentProcessor {
-
-	private static final String ARG_PREFIX = "-";
-	private static final String ARGS_SUFFIX = "=";
-	private static final String ARG_PATTERN = ARG_PREFIX +  "(\\w+)(" + ARGS_SUFFIX + "(.*))?";
+public class ArgumentBag {
 
 	private Map<String, String> arguments;
 
-	/**
-	 * Builds a {@link ArgumentProcessor} instance and passes the parsed argument values
-	 * from the argument array to it.
-	 * @param args argument array
-	 * @return
-	 */
-	public static ArgumentProcessor build(String[] args){
-		Map<String, String> result = new HashMap<>();
-
-		// Build argument map
-		Pattern argPattern = Pattern.compile(ARG_PATTERN);
-		for (String arg : args) {
-			if(arg.matches(ARG_PATTERN)){
-				Matcher matcher = argPattern.matcher(arg);
-				if(!matcher.find()){
-					continue;
-				}
-
-				String argDef = matcher.group(1);
-				Argument argEnum = Argument.getArgument(argDef);
-				if(argEnum == null){
-					continue;
-				}
-
-				String argValue = argEnum.isFlag() ? argDef : matcher.group(3);
-
-				result.put(argDef, argValue);
-			}
-		}
-
-		// If interactive mode is requested the mandatory arguments must not be
-		// present beforehand, hence are removed from map.
-		if(result.containsKey(Argument.Interactive.getDefinition())){
-			Argument.getRequiredList().forEach(arg -> result.remove(arg.getDefinition()));
-		}
-
-		return new ArgumentProcessor(result);
-	}
-
-	/**
-	 * Appends the value with the global argument prefix.
-	 * @param value
-	 * @return
-	 */
-	public static String addPrefix(String value){
-		return ARG_PREFIX + value;
-	}
-
-	private ArgumentProcessor(Map<String, String> arguments){
+	public ArgumentBag(Map<String, String> arguments){
 		this.arguments = arguments;
 	}
 

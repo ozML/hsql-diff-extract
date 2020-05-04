@@ -1,4 +1,4 @@
-package de.ozml.hsqldiffextract;
+package de.ozml.hsqldiffextract.arg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ public enum Argument {
 	OriginalFile("oFile", true),
 	ChangedFile("cFile", true),
 	OutputDir("oDir", true),
+	PropertyFile("pFile", false),
 	Interactive("interactive"),
 	Lazy("lazy");
 
