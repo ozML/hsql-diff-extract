@@ -16,7 +16,7 @@ public class Res {
 
 	private static final String INFO_PREFIX = "arginfo.";
 	private static final String INFO_TITLE_KEY = "title";
-	private static final String INFO_EXAMPLE_KEY = "example";
+	private static final String INFO_FORMAT_KEY = "format";
 	private static final String INFO_DESCRIPTION_KEY = "description";
 
 	/**
@@ -59,7 +59,7 @@ public class Res {
 			info = new ArgumentInfo(
 				name,
 				title,
-				loadString(INFO_PREFIX + name + "_" + INFO_EXAMPLE_KEY, bundle),
+				loadString(INFO_PREFIX + name + "_" + INFO_FORMAT_KEY, bundle),
 				loadString(INFO_PREFIX + name + "_" + INFO_DESCRIPTION_KEY, bundle)
 			);
 		}
