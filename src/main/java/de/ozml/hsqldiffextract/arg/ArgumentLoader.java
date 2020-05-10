@@ -1,13 +1,14 @@
 package de.ozml.hsqldiffextract.arg;
 
+import static de.ozml.hsqldiffextract.arg.Argument.*;
+import static de.ozml.hsqldiffextract.arg.Patterns.*;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static de.ozml.hsqldiffextract.arg.Patterns.ARG_PREFIX;
-import static de.ozml.hsqldiffextract.arg.Patterns.ARG_SUFFIX;;
 
 public class ArgumentLoader {
 
@@ -46,7 +47,7 @@ public class ArgumentLoader {
 	 * @return
 	 */
 	private static boolean isProhibited(Argument arg){
-		return arg == Argument.PropertyFile || arg == Argument.Interactive;
+		return arg == PropertyFile || arg == Interactive;
 	}
 
 	private ArgumentLoader(){}

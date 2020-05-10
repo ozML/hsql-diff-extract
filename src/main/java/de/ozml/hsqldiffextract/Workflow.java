@@ -8,6 +8,7 @@ import java.util.List;
 import de.ozml.hsqldiffextract.entity.Table;
 import de.ozml.hsqldiffextract.parser.RowParser;
 import de.ozml.hsqldiffextract.parser.TableParser;
+import de.ozml.hsqldiffextract.res.Res;
 import de.ozml.hsqldiffextract.util.EagerRowSource;
 import de.ozml.hsqldiffextract.util.LazyRowRource;
 import de.ozml.hsqldiffextract.util.RowSource;
@@ -33,47 +34,47 @@ public class Workflow {
 	
 	public void start(){
 		// Start
-		System.out.println("\nStarting workflow");
+		System.out.println("\n" + Res.loadString("msg.startworkflow"));
 
 		// Read table definitions
-		System.out.println("\nCollecting tables");
-		System.out.println("Definitions written to: " + outputDir + "\\" + TABLE_OUTPUT_FILE);
+		System.out.println("\n" + Res.loadString("msg.collecttables"));
+		System.out.println(String.format(Res.loadString("msg.format.defswriteto"), outputDir + "\\" + TABLE_OUTPUT_FILE));
 
-		System.out.println("\nCollecting tables from original file");
+		System.out.println("\n" + String.format(Res.loadString("msg.format.collecttablesfrom"), Res.loadString("ofile")));
 		List<Table> oTables = TableParser.readTablesFromFile(originalFile);
-		System.out.println(oTables.size() + " tables read");
-		printTables("*\n* Original tables:\n*", oTables, false);
+		System.out.println(String.format(Res.loadString("msg.format.tablesread"), "" + oTables.size()));
+		printTables("*\n* " + Res.loadString("msg.originaltables") + ":\n*", oTables, false);
 
-		System.out.println("\nCollecting tables from changed file");
+		System.out.println("\n" + String.format(Res.loadString("msg.format.collecttablesfrom"), Res.loadString("cfile")));
 		List<Table> cTables = TableParser.readTablesFromFile(changedFile);
-		System.out.println(cTables.size() + " tables read");
-		printTables("*\n* Changed tables:\n*", oTables, true);
+		System.out.println(String.format(Res.loadString("msg.format.tablesread"), "" + cTables.size()));
+		printTables("*\n* " + Res.loadString("msg.changedtables") + ":\n*", cTables, true);
 
 		// Process changes
-		System.out.println("\nDetermine changes");
+		System.out.println("\n" + Res.loadString("msg.determinchanges"));
 		for (Table oTable : oTables) {
 			for (Table cTable : cTables) {
 				if(oTable.getName().equals(cTable.getName())){
-					System.out.println("\nProcessing table " + oTable.getName());
+					System.out.println("\n" + String.format(Res.loadString("msg.format.processtable"), oTable.getName()));
 
 					// Read rows
 					RowSource oTableSource = buildRowSource(oTable, originalFile);
 					RowSource cTableSource = buildRowSource(cTable, changedFile);
-					System.out.println("Rows: original=" + oTableSource.count() +", changed=" + cTableSource.count());
+					System.out.println(String.format(Res.loadString("msg.format.readrowsresult"), "" + oTableSource.count(), "" + cTableSource.count()));
 					
 					if(oTableSource.count() > 0 && cTableSource.count() > 0){
 						DiffProcessor diffProcessor = new DiffProcessor(oTable.getName(), outputDir);
 						diffProcessor.process(oTableSource, cTableSource);
-						System.out.println("Done");
+						System.out.println(Res.loadString("msg.done"));
 					} else {
-						System.out.println("Skipped");
+						System.out.println(Res.loadString("msg.skipped"));
 					}
 				}
 			}
 		}
 
 		// End
-		System.out.println("\nWorkflow completed");
+		System.out.println("\n" + Res.loadString("msg.workflowcompleted"));
 	}
 
 	private RowSource buildRowSource(Table table, String filePath){

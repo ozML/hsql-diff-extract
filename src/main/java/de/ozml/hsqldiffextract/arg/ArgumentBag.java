@@ -1,9 +1,13 @@
 package de.ozml.hsqldiffextract.arg;
 
+import static de.ozml.hsqldiffextract.arg.Argument.*;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Predicate;
+
+import de.ozml.hsqldiffextract.res.Res;
 
 /**
  * The class manages the arguments which are passed through the command line
@@ -30,7 +34,7 @@ public class ArgumentBag {
 	 * @return
 	 */
 	public boolean isLazyMode(){
-		return collectArg(Argument.Lazy.getDefinition()) != null;
+		return collectArg(Lazy.getDefinition()) != null;
 	}
 
 	/**
@@ -57,9 +61,9 @@ public class ArgumentBag {
 	 * @return
 	 */
 	public String getOriginalFile(){
-		String msg = "\nPlease add path to the original file:";
-		String errMsg = "\nFile does not exist..";
-		String argDef = Argument.OriginalFile.getDefinition();
+		String msg = "\n" + String.format(Res.loadString("msg.format.promptfile"), Res.loadString("ofile"));
+		String errMsg = "\n" + Res.loadString("msg.filenonexist");
+		String argDef = OriginalFile.getDefinition();
 
 		return collectArg(argDef, line -> fileExists(line), msg, errMsg);
 	}
@@ -70,9 +74,9 @@ public class ArgumentBag {
 	 * @return
 	 */
 	public String getChangedFile(){
-		String msg = "\nPlease add path to the changed file:";
-		String errMsg = "\nFile does not exist..";
-		String argDef = Argument.ChangedFile.getDefinition();
+		String msg = "\n" + String.format(Res.loadString("msg.format.promptfile"), Res.loadString("cfile"));
+		String errMsg = "\n" + Res.loadString("msg.filenonexist");
+		String argDef = ChangedFile.getDefinition();
 
 		return collectArg(argDef, line -> fileExists(line), msg, errMsg);
 	}
@@ -83,9 +87,9 @@ public class ArgumentBag {
 	 * @return
 	 */
 	public String getOutputDirectory(){
-		String msg = "\nPlease add path to the output directory:";
-		String errMsg = "\nDirectory does not exist..";
-		String argDef = Argument.OutputDir.getDefinition();
+		String msg = "\n" + String.format(Res.loadString("msg.format.promptdir"), Res.loadString("odir"));
+		String errMsg = "\n" + Res.loadString("msg.dirnonexist");
+		String argDef = OutputDir.getDefinition();
 
 		return collectArg(argDef, line -> dirExists(line), msg, errMsg);
 	}

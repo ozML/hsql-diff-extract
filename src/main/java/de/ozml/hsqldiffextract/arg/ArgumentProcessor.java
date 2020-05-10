@@ -1,5 +1,7 @@
 package de.ozml.hsqldiffextract.arg;
 
+import static de.ozml.hsqldiffextract.arg.Argument.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +24,12 @@ public class ArgumentProcessor {
 	public static ArgumentBag build(String[] args){
 		Map<String, String> arguments = parseArguments(args);
 
-		if(arguments.containsKey(Argument.PropertyFile.getDefinition())){
-			String propertyPath = arguments.get(Argument.PropertyFile.getDefinition());
+		if(arguments.containsKey(PropertyFile.getDefinition())){
+			String propertyPath = arguments.get(PropertyFile.getDefinition());
 			String[] values = ArgumentLoader.loadFromPropertyFile(propertyPath);
 			arguments = parseArguments(values);
 		}
-		else if(arguments.containsKey(Argument.Interactive.getDefinition())){
+		else if(arguments.containsKey(Interactive.getDefinition())){
 			List<String> exclude = Argument.getRequiredList()
 				.stream().map(arg -> arg.getDefinition())
 				.collect(Collectors.toList());
