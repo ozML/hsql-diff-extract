@@ -12,6 +12,8 @@ public enum Argument {
 	ChangedFile("cFile", true),
 	OutputDir("oDir", true),
 	PropertyFile("pFile", false),
+	IncludeTables("inTables", false),
+	ExcludeTables("exTables", false),
 	Interactive("interactive"),
 	Lazy("lazy");
 

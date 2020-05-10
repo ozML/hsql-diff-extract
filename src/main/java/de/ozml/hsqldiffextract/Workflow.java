@@ -24,6 +24,8 @@ public class Workflow {
 	private String changedFile;
 	private String outputDir;
 	private boolean isLazyMode;
+	private List<String> inclusionFilter;
+	private List<String> exclusionFilter;
 
 	public Workflow(String originalFile, String changedFile, String outputDir, boolean isLazyMode) {
 		this.originalFile = originalFile;
@@ -31,8 +33,24 @@ public class Workflow {
 		this.outputDir = outputDir;
 		this.isLazyMode = isLazyMode;
 	}
-	
-	public void start(){
+
+	public List<String> getInclusionFilter() {
+		return inclusionFilter;
+	}
+
+	public void setInclusionFilter(List<String> inclusionFilter) {
+		this.inclusionFilter = inclusionFilter;
+	}
+
+	public List<String> getExclusionFilter() {
+		return exclusionFilter;
+	}
+
+	public void setExclusionFilter(List<String> exclusionFilter) {
+		this.exclusionFilter = exclusionFilter;
+	}
+
+	public void start() {
 		// Start
 		System.out.println("\n" + Res.loadString("msg.startworkflow"));
 
@@ -43,11 +61,23 @@ public class Workflow {
 		System.out.println("\n" + String.format(Res.loadString("msg.format.collecttablesfrom"), Res.loadString("ofile")));
 		List<Table> oTables = TableParser.readTablesFromFile(originalFile);
 		System.out.println(String.format(Res.loadString("msg.format.tablesread"), "" + oTables.size()));
-		printTables("*\n* " + Res.loadString("msg.originaltables") + ":\n*", oTables, false);
-
+		
 		System.out.println("\n" + String.format(Res.loadString("msg.format.collecttablesfrom"), Res.loadString("cfile")));
 		List<Table> cTables = TableParser.readTablesFromFile(changedFile);
 		System.out.println(String.format(Res.loadString("msg.format.tablesread"), "" + cTables.size()));
+		
+		// Apply filters
+		if(inclusionFilter != null || (inclusionFilter != null && exclusionFilter != null)){
+			System.out.println("\n" + Res.loadString("msg.applyinfilter"));
+			applyInclusionFilter(oTables);
+			applyInclusionFilter(cTables);
+		} else if(exclusionFilter != null) {
+			System.out.println("\n" + Res.loadString("msg.applyexfilter"));
+			applyExclusionFilter(oTables);
+			applyExclusionFilter(cTables);
+		}
+		
+		printTables("*\n* " + Res.loadString("msg.originaltables") + ":\n*", oTables, false);
 		printTables("*\n* " + Res.loadString("msg.changedtables") + ":\n*", cTables, true);
 
 		// Process changes
@@ -77,6 +107,28 @@ public class Workflow {
 		System.out.println("\n" + Res.loadString("msg.workflowcompleted"));
 	}
 
+	/**
+	 * Applies the inclusion filter by removing all tables not listed.
+	 * @param tables
+	 */
+	private void applyInclusionFilter(List<Table> tables) {
+		tables.removeIf(table -> !inclusionFilter.contains(table.getName().toLowerCase()));
+	}
+
+	/**
+	 * Applies the exclusion filter by removing all listed tables listed.
+	 * @param tables
+	 */
+	private void applyExclusionFilter(List<Table> tables) {
+		tables.removeIf(table -> exclusionFilter.contains(table.getName().toLowerCase()));
+	}
+
+	/**
+	 * Returns a suitable row source.
+	 * @param table
+	 * @param filePath
+	 * @return
+	 */
 	private RowSource buildRowSource(Table table, String filePath){
 		if(isLazyMode){
 			return new LazyRowRource(table, filePath, RowParser.readRowLinesFromTable(table, filePath));

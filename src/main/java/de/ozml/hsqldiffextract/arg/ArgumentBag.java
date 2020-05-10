@@ -3,9 +3,12 @@ package de.ozml.hsqldiffextract.arg;
 import static de.ozml.hsqldiffextract.arg.Argument.*;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import de.ozml.hsqldiffextract.res.Res;
 
@@ -92,6 +95,40 @@ public class ArgumentBag {
 		String argDef = OutputDir.getDefinition();
 
 		return collectArg(argDef, line -> dirExists(line), msg, errMsg);
+	}
+
+	/**
+	 * Returns the table inclusion list. The list contains the names of the tables which 
+	 * should be included. Only the tables contained in this list shall be computed.
+	 * All names are converted to lower case.
+	 * @return
+	 */
+	public List<String> getIncludeTables() {
+		String inclusions = collectArg(IncludeTables.getDefinition());
+		if(inclusions == null || inclusions.isBlank()){
+			return null;
+		}
+
+		return Arrays.asList(inclusions.split(","))
+			.stream().map(entry -> entry.trim().toLowerCase())
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns the table exclusion list. The list contains the names of the tables which
+	 * should be excluded. All tables contained in this list shall not be computed.
+	 * All names are converted to lower case.
+	 * @return
+	 */
+	public List<String> getExcludeTables() {
+		String exclusions = collectArg(ExcludeTables.getDefinition());
+		if(exclusions == null || exclusions.isBlank()){
+			return null;
+		}
+
+		return Arrays.asList(exclusions.split(","))
+			.stream().map(entry -> entry.trim().toLowerCase())
+			.collect(Collectors.toList());
 	}
 
 	/**

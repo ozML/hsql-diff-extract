@@ -63,7 +63,10 @@ public class Starter {
 			}
 		}
 
+		// Configure workflow
 		Workflow workflow = new Workflow(originalFile, changedFile, outputDir, argProcessor.isLazyMode());
+		workflow.setInclusionFilter(argProcessor.getIncludeTables());
+		workflow.setExclusionFilter(argProcessor.getExcludeTables());
 		workflow.start();
 	}
 
